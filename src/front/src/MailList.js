@@ -1,6 +1,56 @@
-// import "bootstrap/dist/js/bootstrap";
+import axios from "axios";
+import { useRef, useState } from "react";
 
 function MailList() {
+
+  const [to, setTo] = useState('');
+  const [cc, setCc] = useState('');
+  const [bcc, setBcc] = useState('');
+  const [subject, setSubject] = useState('');
+  const [message, setMessage] = useState('');
+
+  const toInput = useRef();
+  const ccInput = useRef();
+  const bccInput = useRef();
+  const subjectInput = useRef();
+  const messageInput = useRef();
+
+  function saveTo() {
+    setTo(toInput.current.value);
+  }
+  function saveCc() {
+    setCc(ccInput.current.value);
+  }
+  function saveBcc() {
+    setBcc(bccInput.current.value);
+  }
+  function saveSubject() {
+    setSubject(subjectInput.current.value);
+  }
+  function saveMessage() {
+    setMessage(messageInput.current.value);
+  }
+
+  const sendEmail = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+
+    const data = {
+      'senderId': 'melong4609@gmail.com',
+      'senderName': '테스트',
+      'senderEmail': 'melong4609@gmail.com',
+      'title': '테스트메일 입니다.',
+      'content': '메일 전송 테스트입니다.'
+    }
+    // console.log($('input[name="cc"]').val());
+    // console.log($('input[name="bcc"]').val());
+    // console.log($('input[name="subject"]').val());
+    // console.log($('input[name="message"]').val());
+    axios.post("http://localhost:8080/mail/sendEmail", data).then(res => {
+      console.log(res);
+    })
+  }
+
   return (
     <div className="App">
       <div class="container">
@@ -402,6 +452,8 @@ function MailList() {
                                   type="email"
                                   class="form-control"
                                   placeholder="To"
+                                  ref={toInput}
+                                  onChange={saveTo}
                                 />
                               </div>
                               <div class="form-group">
@@ -410,6 +462,8 @@ function MailList() {
                                   type="email"
                                   class="form-control"
                                   placeholder="Cc"
+                                  ref={ccInput}
+                                  onChange={saveCc}
                                 />
                               </div>
                               <div class="form-group">
@@ -418,6 +472,8 @@ function MailList() {
                                   type="email"
                                   class="form-control"
                                   placeholder="Bcc"
+                                  ref={bccInput}
+                                  onChange={saveBcc}
                                 />
                               </div>
                               <div class="form-group">
@@ -426,6 +482,8 @@ function MailList() {
                                   type="email"
                                   class="form-control"
                                   placeholder="Subject"
+                                  ref={subjectInput}
+                                  onChange={saveSubject}
                                 />
                               </div>
                               <div class="form-group">
@@ -434,6 +492,8 @@ function MailList() {
                                   id="email_message"
                                   class="form-control"
                                   placeholder="Message"
+                                  ref={messageInput}
+                                  onChange={saveMessage}
                                   style={{ height: "120px" }}
                                 ></textarea>
                               </div>
@@ -451,7 +511,8 @@ function MailList() {
                                 <i class="fa fa-times"></i> Discard
                               </button>
                               <button
-                                type="submit"
+                                // type="submit"
+                                onClick={sendEmail}
                                 class="btn btn-primary pull-right"
                               >
                                 <i class="fa fa-envelope"></i> Send Message
