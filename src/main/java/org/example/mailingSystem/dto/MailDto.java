@@ -14,6 +14,7 @@ public class MailDto {
     private String senderId;
     private String senderName;
     private String senderEmail;
+    private String receivedEmail;
     private String title;
     private String content;
     private Date receivedTime;

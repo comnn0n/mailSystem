@@ -31,24 +31,44 @@ function MailList() {
     setMessage(messageInput.current.value);
   }
 
+  const closeBtn = useRef();
+
   const sendEmail = (e) => {
     e.stopPropagation();
     e.preventDefault();
 
     const data = {
-      'senderId': 'melong4609@gmail.com',
-      'senderName': '테스트',
       'senderEmail': 'melong4609@gmail.com',
-      'title': '테스트메일 입니다.',
-      'content': '메일 전송 테스트입니다.'
+      'senderName': '테스트',
+      "receivedEmail": to,
+      'title': subject,
+      'content': message
     }
-    // console.log($('input[name="cc"]').val());
-    // console.log($('input[name="bcc"]').val());
-    // console.log($('input[name="subject"]').val());
-    // console.log($('input[name="message"]').val());
-    axios.post("http://localhost:8080/mail/sendEmail", data).then(res => {
-      console.log(res);
-    })
+
+    // if(!to) {
+    //   alert('받으실 분의 메일주소를 입력해주세요.');
+    //   return;
+    // }
+    // if(!to.includes('@')) {
+    //   alert('받으실 분의 메일주소를 정확히 입력해주세요.');
+    //   return;
+    // }
+    // if(!message) {
+    //   alert('내용을 입력해주세요.');
+    //   return;
+    // }
+
+    axios.post("http://localhost:8080/api/mail/sendEmail", data).then(
+        response => {
+          console.log(response)
+          closeBtn.current.click();
+        }
+    ).catch(
+        error => {
+          console.log(error)
+          alert('메일 전송에 실패하였습니다.');
+        }
+    );
   }
 
   return (
@@ -437,6 +457,7 @@ function MailList() {
                               class="close"
                               data-dismiss="modal"
                               aria-hidden="true"
+                              ref={closeBtn}
                             >
                               ×
                             </button>
