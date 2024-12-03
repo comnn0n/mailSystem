@@ -4,6 +4,8 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+# 2024.11.20 그래들 설정파일 추가
+gradle.properties
 
 ### STS ###
 .apt_generated
