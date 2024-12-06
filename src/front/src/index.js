@@ -8,7 +8,7 @@ import "https://netdna.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <React.StrictMode>
+  <div>
     <link
       rel="stylesheet"
       href="https://netdna.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
@@ -18,7 +18,7 @@ root.render(
       rel="stylesheet"
     />
     <App />
-  </React.StrictMode>
+  </div>
 );
 
 // If you want to start measuring performance in your app, pass a function

@@ -1,11 +1,25 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.example.mailingSystem.mapper.EmailMapper">
+    <resultMap id="mailDtoResultMap" type="org.example.mailingSystem.dto.MailDto">
+        <id column="mail_no" property="mailNo"></id>
+        <result column="sender_email" property="senderEmail"></result>
+        <result column="sender_name" property="senderName"></result>
+        <result column="receiver_email" property="receiverEmail"></result>
+        <result column="title" property="title"></result>
+        <result column="content" property="content"></result>
+        <result column="received_time" property="receivedTime"></result>
+        <result column="sent_time" property="sentTime"></result>
+        <result column="is_important" property="isImportant"></result>
+        <result column="is_read" property="isRead"></result>
+        <result column="is_bookmarked" property="isBookmarked"></result>
+    </resultMap>
+
     <insert id="insertMail">
         INSERT INTO MAILLIST
             (sender_email,
              sender_name,
-             received_email,
+             receiver_email,
              title,
              content,
              received_time,
@@ -16,7 +30,7 @@
         VALUES
             (#{senderEmail},
              #{senderName},
-             #{receivedEmail},
+             #{receiverEmail},
              #{title},
              #{content},
              CURRENT_TIME,
@@ -25,4 +39,21 @@
              #{isRead},
              #{isBookmarked})
     </insert>
+
+    <select id="selectMailList" resultMap="mailDtoResultMap">
+        SELECT
+            mail_no,
+            sender_email,
+            sender_name,
+            receiver_email,
+            title,
+            content,
+            received_time,
+            sent_time,
+            is_important,
+            is_read,
+            is_bookmarked
+        FROM MAILLIST WHERE sender_email = #{senderId}
+        ORDER BY mail_no DESC
+    </select>
 </mapper>
