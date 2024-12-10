@@ -7,7 +7,7 @@ function MailList() {
 
   const tbody = useRef();
 
-  useEffect(() => {
+  const getMailList = function()  {
     axios.get("http://localhost:8080/api/mail/getEmail").then(
         response => {
           setMailList(response.data);
@@ -17,38 +17,27 @@ function MailList() {
           console.log(error);
         }
     )
+  };
+
+  useEffect(() => {
+    getMailList();
   }, []);
 
-  function setMailItemList() {
-    var trArr = [];
-    for(var i = 0; i < mailList.length; i++) {
-      trArr.push(
-          <tr>
-            <td className="action">
-              <input type="checkbox"/>
-            </td>
-            <td className="action">
-              <i className="fa fa-star-o"></i>
-              {/*<i className="fa fa-star"></i>*/}
-            </td>
-            <td className="action">
-              {/*<i className="fa fa-bookmark-o"></i>*/}
-              <i className="fa fa-bookmark"></i>
-            </td>
-            <td className="name">
-              <a href="#">{mailList[i].senderEmail}</a>
-            </td>
-            <td className="subject">
-              <a href="#">
-                {mailList[i].content}
-              </a>
-            </td>
-            <td className="time">{mailList[i].receivedTime}</td>
-          </tr>
-      )
-    }
-    return trArr;
-  }
+  const bookmark = function(params) {
+    axios.post("http://localhost:8080/api/mail/updEmail", params).then(
+        response => {
+          getMailList();
+        }
+    )
+  };
+
+  const important = function(params) {
+    axios.post("http://localhost:8080/api/mail/updEmail", params).then(
+        response => {
+          getMailList();
+        }
+    )
+  };
 
   const [to, setTo] = useState('');
   const [cc, setCc] = useState('');
@@ -253,7 +242,66 @@ function MailList() {
                     <div class="table-responsive">
                       <table class="table">
                         <tbody ref={tbody}>
-                        {setMailItemList()}
+                        {/*{setMailItemList()}*/}
+                        {mailList.map((v, i) => (
+                            <tr key={v.mailNo} id={v.mailNo} ref={(el) => {
+                              // mailItem.current = el
+                            }}>
+                              <td className="action">
+                                <input type="checkbox"/>
+                              </td>
+                              <td className="action important" onClick={(e) => {
+
+                                const params = {
+                                  mailNo: v.mailNo,
+                                }
+
+                                if (e.currentTarget.children[0].className.includes('-o')) {
+                                  params['isImportant'] = true;
+                                } else {
+                                  params['isImportant'] = false;
+                                }
+
+                                const formData = new URLSearchParams();
+                                Object.keys(params).forEach(key => {
+                                  formData.append(key, params[key]);
+                                })
+
+                                important(formData)
+                              }}>
+                                {v.isImportant ? <i className="fa fa-star"></i> : <i className="fa fa-star-o"></i>}
+                              </td>
+                              <td className="action bookmark" onClick={(e) => {
+                                const params = {
+                                  mailNo: v.mailNo,
+                                }
+
+                                if (e.currentTarget.children[0].className.includes('-o')) {
+                                  params['isBookmarked'] = true;
+                                } else {
+                                  params['isBookmarked'] = false;
+                                }
+
+                                const formData = new URLSearchParams();
+                                Object.keys(params).forEach(key => {
+                                  formData.append(key, params[key]);
+                                })
+
+                                bookmark(formData)
+                              }}>
+                                {v.isBookmarked ? <i className="fa fa-bookmark"></i> : <i className="fa fa-bookmark-o"></i>}
+                              </td>
+                              <td className="name">
+                                <a href="#">{v.senderEmail}</a>
+                              </td>
+                              <td className="subject">
+                                <a href="#">
+                                  {v.content}
+                                </a>
+                              </td>
+                              <td className="time">{v.receivedTime.substring(0, 10)}</td>
+                            </tr>
+                        ))}
                         </tbody>
                       </table>
                     </div>
@@ -275,7 +323,7 @@ function MailList() {
                         <a href="#">4</a>
                       </li>
                       <li>
-                        <a href="#">5</a>
+                      <a href="#">5</a>
                       </li>
                       <li>
                         <a href="#">»</a>

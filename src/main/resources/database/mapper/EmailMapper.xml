@@ -15,7 +15,7 @@
         <result column="is_bookmarked" property="isBookmarked"></result>
     </resultMap>
 
-    <insert id="insertMail">
+    <insert id="insertMail" parameterType="org.example.mailingSystem.dto.MailDto">
         INSERT INTO MAILLIST
             (sender_email,
              sender_name,
@@ -56,4 +56,20 @@
         FROM MAILLIST WHERE sender_email = #{senderId}
         ORDER BY mail_no DESC
     </select>
+
+    <update id="updateEmail" parameterType="org.example.mailingSystem.dto.MailDto">
+        UPDATE MAILLIST
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="isImportant != null">
+                is_important = #{isImportant}
+            </if>
+            <if test="isRead != null">
+                is_read = #{isRead}
+            </if>
+            <if test="isBookmarked != null">
+                is_bookmarked = #{isBookmarked}
+            </if>
+        </trim>
+        where mail_no = #{mailNo}
+    </update>
 </mapper>

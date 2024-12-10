@@ -26,7 +26,7 @@ public class MailController {
     @RequestMapping(value = "/getEmail", method = RequestMethod.GET, produces = "application/json; charset=UTF8")
     @ResponseBody
     public List<MailDto> getEmail(HttpServletRequest request,
-                                       HttpServletResponse response) {
+                                  HttpServletResponse response) {
 
         HttpSession session = request.getSession();
 
@@ -38,7 +38,7 @@ public class MailController {
         return mailList;
     }
 
-    @RequestMapping(value = "/sendEmail", method = RequestMethod.POST)
+    @RequestMapping(value = "/sendEmail", method = RequestMethod.POST, produces = "application/json; charset=UTF8")
     @ResponseBody
     public String sendEmail(HttpServletRequest request,
                             @RequestBody MailDto mailDto) throws Exception {
@@ -60,6 +60,24 @@ public class MailController {
 //
 
         return "1";
+    }
+
+    @RequestMapping(value = "/updEmail", method = RequestMethod.POST, produces = "application/json; charset=UTF8")
+    @ResponseBody
+    public void updEmail(HttpServletRequest request,
+                         @RequestParam(value = "mailNo") int mailNo,
+                         @RequestParam(value = "isImportant", required = false) Boolean isImportant,
+                         @RequestParam(value = "isRead", required = false) Boolean isRead,
+                         @RequestParam(value = "isBookmarked", required = false) Boolean isBookmarked) throws Exception {
+
+        HttpSession session = request.getSession();
+
+        this.emailService.updEmail(session,
+                                    mailNo,
+                                    isImportant,
+                                    isRead,
+                                    isBookmarked);
+
     }
 
 }

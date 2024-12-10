@@ -72,4 +72,17 @@ public class EmailService {
 
         return mailList;
     }
+
+    public void updEmail (HttpSession session,
+                          int mailNo,
+                          Boolean isImportant,
+                          Boolean isRead,
+                          Boolean isBookmarked) {
+
+        this.emailMapper.updateEmail(mailNo,
+                                    isImportant,
+                                    isRead,
+                                    isBookmarked);
+
+    }
 }

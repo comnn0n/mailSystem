@@ -20,4 +20,9 @@ public interface EmailMapper {
 
     List<MailDto> selectMailList(@Param("senderId") String senderId);
 
+    void updateEmail(@Param("mailNo") int mailNo,
+                     @Param("isImportant") Boolean isImportant,
+                     @Param("isRead") Boolean isRead,
+                     @Param("isBookmarked") Boolean isBookmarked);
+
 }
