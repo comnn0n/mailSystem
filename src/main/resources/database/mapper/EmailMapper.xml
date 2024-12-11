@@ -53,8 +53,17 @@
             is_important,
             is_read,
             is_bookmarked
-        FROM MAILLIST WHERE sender_email = #{senderId}
+        FROM MAILLIST
+        WHERE sender_email = #{senderId}
         ORDER BY mail_no DESC
+        LIMIT 10 OFFSET #{pageNum}
+    </select>
+
+    <select id="selectMailListCount" resultType="int">
+        SELECT
+            COUNT(mail_no)
+        FROM MAILLIST
+        WHERE sender_email = #{senderId}
     </select>
 
     <update id="updateEmail" parameterType="org.example.mailingSystem.dto.MailDto">

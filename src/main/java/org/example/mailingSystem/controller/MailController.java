@@ -23,19 +23,18 @@ public class MailController {
     @Autowired
     private EmailService emailService;
 
-    @RequestMapping(value = "/getEmail", method = RequestMethod.GET, produces = "application/json; charset=UTF8")
+    @RequestMapping(value = "/getEmail", method = RequestMethod.POST, produces = "application/json; charset=UTF8")
     @ResponseBody
-    public List<MailDto> getEmail(HttpServletRequest request,
+    public Map<String, Object> getEmail(HttpServletRequest request,
+                                  @RequestParam(value = "page") int page,
                                   HttpServletResponse response) {
 
         HttpSession session = request.getSession();
 
-        List<MailDto> mailList = this.emailService.getMailList(session);
+        Map<String, Object> result = this.emailService.getMailList(session,
+                                                                    page);
 
-        JSONParser jsonParser = new JSONParser(mailList.toString());
-        System.out.println(jsonParser);
-
-        return mailList;
+        return result;
     }
 
     @RequestMapping(value = "/sendEmail", method = RequestMethod.POST, produces = "application/json; charset=UTF8")

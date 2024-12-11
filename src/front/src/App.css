@@ -229,3 +229,33 @@ padding-right: 2px;
   opacity: 0;
   background: rgb(255, 255, 255);
 }
+
+.read_mail_modal {
+  padding: 10px;
+  height: 400px;
+}
+
+.read_mail_modal table {
+  width: 100%;
+  height: 100%;
+}
+
+.read_mail_modal .modal_subject {
+  width: 12%;
+}
+
+.read_mail_modal .modal_mail_title td {
+  padding-top: 20px;
+}
+
+.read_mail_modal .modal_mail_content td {
+  border: 1px solid #ddd;
+  width: 100%;
+  height: 100%;
+  padding: 0 5px;
+}
+
+.read_mail_modal .modal_mail_content div {
+  width: 100%;
+  height: 100%;
+}

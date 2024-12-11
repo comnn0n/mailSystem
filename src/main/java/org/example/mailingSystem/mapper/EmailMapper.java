@@ -18,7 +18,10 @@ public interface EmailMapper {
                     @Param("isRead") Boolean isRead,
                     @Param("isBookmarked") Boolean isBookmarked);
 
-    List<MailDto> selectMailList(@Param("senderId") String senderId);
+    List<MailDto> selectMailList(@Param("senderId") String senderId,
+                                 @Param("pageNum") int pageNum);
+
+    int selectMailListCount(@Param("senderId") String senderId);
 
     void updateEmail(@Param("mailNo") int mailNo,
                      @Param("isImportant") Boolean isImportant,

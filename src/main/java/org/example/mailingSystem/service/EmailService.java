@@ -12,7 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class EmailService {
@@ -63,14 +65,25 @@ public class EmailService {
 
     }
 
-    public List<MailDto> getMailList(HttpSession session) {
+    public Map<String, Object> getMailList(HttpSession session,
+                                     int page) {
 
         //        String senderId = session.getId();
         String senderId = "melong4609@gmail.com";
 
-        List<MailDto> mailList = this.emailMapper.selectMailList(senderId);
+        int pageNum = (page - 1) * 10;
 
-        return mailList;
+        List<MailDto> mailList = this.emailMapper.selectMailList(senderId,
+                                                                 pageNum);
+
+        int count = this.emailMapper.selectMailListCount(senderId);
+
+        Map<String, Object> resultMap = new HashMap();
+        resultMap.put("mailList", mailList);
+        resultMap.put("count", count);
+
+
+        return resultMap;
     }
 
     public void updEmail (HttpSession session,
