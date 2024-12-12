@@ -259,3 +259,8 @@ padding-right: 2px;
   width: 100%;
   height: 100%;
 }
+
+/* 읽은 메세지 */
+.read {
+  color: #ccc
+}

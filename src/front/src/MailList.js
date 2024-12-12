@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useRef, useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import {forEach} from "react-bootstrap/ElementChildren";
 
 function MailList() {
@@ -9,10 +10,12 @@ function MailList() {
 
   const tbody = useRef();
 
+  const page = useParams();
+
   const getMailList = function()  {
 
     const param =  {
-      page: 1
+      page: page ? page.page : 1
     };
 
     const formData = new URLSearchParams();
@@ -37,20 +40,20 @@ function MailList() {
     getMailList();
   }, []);
 
-  const bookmark = function(params) {
+  function updateMailItem(params) {
     axios.post("http://localhost:8080/api/mail/updEmail", params).then(
         response => {
           getMailList();
         }
     )
+  }
+
+  const bookmark = function(params) {
+    updateMailItem(params);
   };
 
   const important = function(params) {
-    axios.post("http://localhost:8080/api/mail/updEmail", params).then(
-        response => {
-          getMailList();
-        }
-    )
+    updateMailItem(params);
   };
 
   const [to, setTo] = useState('');
@@ -128,14 +131,29 @@ function MailList() {
   // 모달 세팅
   const [modalOption, setModalOption] = useState();
   const [mailItem, setMailItem] = useState({});
-  function read() {
-    setModalOption("read")
+  function read(params) {
+    setModalOption("read");
+    updateMailItem(params);
   }
   function write() {
     setModalOption("write");
   }
 
-  const pageCount = mailCount/10;
+  const pageCount = Math.ceil(mailCount/10);
+
+  const navi = useNavigate();
+  const toForward = () => {
+    if(page.page > 1) {
+      navi(`/${Number(page.page) - 1}`);
+    }
+    getMailList();
+  }
+  const toBackward = () => {
+    if(page.page < pageCount) {
+      navi(`/${Number(page.page) + 1}`);
+    }
+    getMailList();
+  }
 
   return (
     <div className="App">
@@ -322,11 +340,23 @@ function MailList() {
                               <td className="name">
                                 <a href="#">{v.senderEmail}</a>
                               </td>
-                              <td className="subject">
+                              <td
+                                  className={v.isRead ? "subject read" : "subject"}
+                              >
                                 <p
                                     style={{"cursor": "pointer"}}
                                     onClick={() => {
-                                      read();
+                                      const params = {
+                                        mailNo: v.mailNo,
+                                        isRead: true
+                                      };
+                                      const formData = new URLSearchParams();
+                                      Object.keys(params).forEach(key => {
+                                        formData.append(key, params[key]);
+                                      });
+
+                                      read(formData);
+
                                       setMailItem(v)
                                     }}
                                     data-toggle="modal"
@@ -344,12 +374,12 @@ function MailList() {
 
                     <ul className="pagination">
                       <li>
-                        <a href="#">«</a>
+                        <a href="" onClick={toForward}>«</a>
                       </li>
                       {
                         Array.from({ length: pageCount }).map((_, index) => (
-                          <li className="active" key={index+1}>
-                            <a href="#">{index+1}</a>
+                          <li className={page.page == index+1 ? "active" : ""} key={index+1} onClick={getMailList}>
+                            <a href={index+1}>{index+1}</a>
                           </li>
                         ))
                       }
@@ -370,7 +400,7 @@ function MailList() {
                       {/*  <a href="#">5</a>*/}
                       {/*</li>*/}
                       <li>
-                        <a href="#">»</a>
+                        <a href="" onClick={toBackward}>»</a>
                       </li>
                     </ul>
                   </div>
