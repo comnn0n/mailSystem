@@ -1,6 +1,76 @@
-// import "bootstrap/dist/js/bootstrap";
+import axios from "axios";
+import { useRef, useState } from "react";
 
 function MailList() {
+
+  const [to, setTo] = useState('');
+  const [cc, setCc] = useState('');
+  const [bcc, setBcc] = useState('');
+  const [subject, setSubject] = useState('');
+  const [message, setMessage] = useState('');
+
+  const toInput = useRef();
+  const ccInput = useRef();
+  const bccInput = useRef();
+  const subjectInput = useRef();
+  const messageInput = useRef();
+
+  function saveTo() {
+    setTo(toInput.current.value);
+  }
+  function saveCc() {
+    setCc(ccInput.current.value);
+  }
+  function saveBcc() {
+    setBcc(bccInput.current.value);
+  }
+  function saveSubject() {
+    setSubject(subjectInput.current.value);
+  }
+  function saveMessage() {
+    setMessage(messageInput.current.value);
+  }
+
+  const closeBtn = useRef();
+
+  const sendEmail = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+
+    const data = {
+      'senderEmail': 'melong4609@gmail.com',
+      'senderName': '테스트',
+      "receivedEmail": to,
+      'title': subject,
+      'content': message
+    }
+
+    // if(!to) {
+    //   alert('받으실 분의 메일주소를 입력해주세요.');
+    //   return;
+    // }
+    // if(!to.includes('@')) {
+    //   alert('받으실 분의 메일주소를 정확히 입력해주세요.');
+    //   return;
+    // }
+    // if(!message) {
+    //   alert('내용을 입력해주세요.');
+    //   return;
+    // }
+
+    axios.post("http://localhost:8080/api/mail/sendEmail", data).then(
+        response => {
+          console.log(response)
+          closeBtn.current.click();
+        }
+    ).catch(
+        error => {
+          console.log(error)
+          alert('메일 전송에 실패하였습니다.');
+        }
+    );
+  }
+
   return (
     <div className="App">
       <div class="container">
@@ -387,6 +457,7 @@ function MailList() {
                               class="close"
                               data-dismiss="modal"
                               aria-hidden="true"
+                              ref={closeBtn}
                             >
                               ×
                             </button>
@@ -402,6 +473,8 @@ function MailList() {
                                   type="email"
                                   class="form-control"
                                   placeholder="To"
+                                  ref={toInput}
+                                  onChange={saveTo}
                                 />
                               </div>
                               <div class="form-group">
@@ -410,6 +483,8 @@ function MailList() {
                                   type="email"
                                   class="form-control"
                                   placeholder="Cc"
+                                  ref={ccInput}
+                                  onChange={saveCc}
                                 />
                               </div>
                               <div class="form-group">
@@ -418,6 +493,8 @@ function MailList() {
                                   type="email"
                                   class="form-control"
                                   placeholder="Bcc"
+                                  ref={bccInput}
+                                  onChange={saveBcc}
                                 />
                               </div>
                               <div class="form-group">
@@ -426,6 +503,8 @@ function MailList() {
                                   type="email"
                                   class="form-control"
                                   placeholder="Subject"
+                                  ref={subjectInput}
+                                  onChange={saveSubject}
                                 />
                               </div>
                               <div class="form-group">
@@ -434,6 +513,8 @@ function MailList() {
                                   id="email_message"
                                   class="form-control"
                                   placeholder="Message"
+                                  ref={messageInput}
+                                  onChange={saveMessage}
                                   style={{ height: "120px" }}
                                 ></textarea>
                               </div>
@@ -451,7 +532,8 @@ function MailList() {
                                 <i class="fa fa-times"></i> Discard
                               </button>
                               <button
-                                type="submit"
+                                // type="submit"
+                                onClick={sendEmail}
                                 class="btn btn-primary pull-right"
                               >
                                 <i class="fa fa-envelope"></i> Send Message
