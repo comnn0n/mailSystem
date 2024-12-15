@@ -24,9 +24,13 @@ public class MailController {
                                   @RequestParam(value = "page") int page,
                                   HttpServletResponse response) {
 
-        HttpSession session = request.getSession(true);
+        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+        HttpSession session = httpServletRequest.getSession(false);
 
-//        String userId = (String) session.getAttribute("userId");
+        if (session == null) {
+            // 세션이 없는 경우 처리
+            throw new IllegalStateException("No session found");
+        }
 
         Map<String, Object> result = this.emailService.getMailList(session,
                                                                     page);
@@ -36,7 +40,7 @@ public class MailController {
 
     @RequestMapping(value = "/sendEmail", method = RequestMethod.POST, produces = "application/json; charset=UTF8")
     @ResponseBody
-    public String sendEmail(HttpServletRequest request,
+    public void sendEmail(HttpServletRequest request,
                             @RequestBody MailDto mailDto) throws Exception {
 
         HttpSession session = request.getSession();
@@ -51,11 +55,6 @@ public class MailController {
         this.emailService.sendSimpleMail(session,
                                         mailDto);
 
-//        Map<String, String> response = new HashMap<>();
-//        response.put("status", "200");
-//
-
-        return "1";
     }
 
     @RequestMapping(value = "/updEmail", method = RequestMethod.POST, produces = "application/json; charset=UTF8")

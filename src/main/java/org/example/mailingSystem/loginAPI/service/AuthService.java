@@ -46,7 +46,6 @@ public class AuthService {
         if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
             throw new IllegalArgumentException("Invalid password");
         } else {
-            request.getSession().setAttribute("userEmail", email);
             System.out.println("login success!");
         }
 

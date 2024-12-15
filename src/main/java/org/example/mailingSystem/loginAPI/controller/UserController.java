@@ -12,6 +12,7 @@ import org.example.mailingSystem.LoginAPI.dto.LoginRequest;
 import org.example.mailingSystem.LoginAPI.service.AuthService;
 import org.example.mailingSystem.Token.JwtTokenProvider;
 import org.example.mailingSystem.dto.UserDto;
+import org.example.mailingSystem.loginAPI.service.EmailService;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.HttpStatus;
@@ -27,32 +28,26 @@ import java.util.Map;
 public class UserController {
 
     private final AuthService authService;
+    private final EmailService emailService;
     private UserRepository userRepository;
     private PasswordEncoder passwordEncoder;
     private JwtTokenProvider jwtTokenProvider;
 
-    public UserController(AuthService authService) {
+    public UserController(AuthService authService, EmailService emailService) {
         this.authService = authService;
+        this.emailService = emailService;
     }
 
     // 로그인 처리
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest loginRequest, HttpServletRequest request, HttpServletResponse response1) {
+    public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest loginRequest, HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        session.setAttribute("userEmail", loginRequest.getEmail());
         String token = authService.login(loginRequest.getEmail(), loginRequest.getPassword(), request);
         Map<String, String> response = new HashMap<>();
         response.put("token", token);
-        response.put("userId", loginRequest.getEmail());
+        response.put("userEmail", loginRequest.getEmail());
         response.put("message", "Login successful!");
-//        HttpSession session = request.getSession();
-//        request.getSession().setAttribute("userId", loginRequest.getEmail());
-//        request.getSession().setMaxInactiveInterval(60 * 60);
-//        Cookie cookie = new Cookie("JSESSIONID", request.getSession().getId());
-//        cookie.setHttpOnly(false);
-//        cookie.setSecure(false);
-//        cookie.setPath("/");
-//        cookie.setMaxAge(60 * 60);
-//        cookie.setAttribute("userEmail", loginRequest.getEmail());
-//        response1.addCookie(cookie);
         return ResponseEntity.ok(response);
     }
 

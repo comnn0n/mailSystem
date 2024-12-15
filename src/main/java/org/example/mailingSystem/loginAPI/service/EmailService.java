@@ -67,15 +67,20 @@ public class EmailService {
     public Map<String, Object> getMailList(HttpSession session,
                                      int page) {
 
-//        String senderId = session.getAttribute("userId").toString();
-        String senderId = "melong4609@gmail.com";
+        String senderEmail = session.getAttribute("userEmail").toString();
+        //        String senderEmail = "melong4609@gmail.com";
+
+        if (senderEmail == null) {
+            // 세션에 userEmail이 없는 경우 처리
+            throw new IllegalStateException("User email not found in session");
+        }
 
         int pageNum = (page - 1) * 10;
 
-        List<MailDto> mailList = this.emailMapper.selectMailList(senderId,
+        List<MailDto> mailList = this.emailMapper.selectMailList(senderEmail,
                                                                  pageNum);
 
-        int count = this.emailMapper.selectMailListCount(senderId);
+        int count = this.emailMapper.selectMailListCount(senderEmail);
 
         Map<String, Object> resultMap = new HashMap();
         resultMap.put("mailList", mailList);
