@@ -1,7 +1,11 @@
 package org.example.mailingSystem.LoginAPI.controller;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.apache.catalina.Manager;
+import org.apache.catalina.session.StandardSession;
 import org.example.mailingSystem.LoginAPI.domain.entity.User;
 import org.example.mailingSystem.LoginAPI.domain.repository.UserRepository;
 import org.example.mailingSystem.LoginAPI.dto.LoginRequest;
@@ -33,11 +37,22 @@ public class UserController {
 
     // 로그인 처리
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest loginRequest) {
-        String token = authService.login(loginRequest.getEmail(), loginRequest.getPassword());
+    public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest loginRequest, HttpServletRequest request, HttpServletResponse response1) {
+        String token = authService.login(loginRequest.getEmail(), loginRequest.getPassword(), request);
         Map<String, String> response = new HashMap<>();
         response.put("token", token);
+        response.put("userId", loginRequest.getEmail());
         response.put("message", "Login successful!");
+//        HttpSession session = request.getSession();
+//        request.getSession().setAttribute("userId", loginRequest.getEmail());
+//        request.getSession().setMaxInactiveInterval(60 * 60);
+//        Cookie cookie = new Cookie("JSESSIONID", request.getSession().getId());
+//        cookie.setHttpOnly(false);
+//        cookie.setSecure(false);
+//        cookie.setPath("/");
+//        cookie.setMaxAge(60 * 60);
+//        cookie.setAttribute("userEmail", loginRequest.getEmail());
+//        response1.addCookie(cookie);
         return ResponseEntity.ok(response);
     }
 

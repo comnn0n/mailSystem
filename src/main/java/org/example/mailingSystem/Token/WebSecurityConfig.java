@@ -43,7 +43,7 @@ public class WebSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 활성화
                 .authorizeHttpRequests(requests -> {
-                    requests.requestMatchers("/user/login", "/user/register", "/user/loginCheck").permitAll(); // 인증 필요 없음
+                    requests.requestMatchers("/**", "/user/login", "/user/register", "/user/loginCheck").permitAll(); // 인증 필요 없음
                     requests.requestMatchers(HttpMethod.POST, "/**", "/").authenticated(); // POST 요청은 인증 필요
                 })
                 .sessionManagement(sessionManagement ->

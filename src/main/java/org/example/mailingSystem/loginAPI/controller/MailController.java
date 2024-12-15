@@ -1,18 +1,13 @@
-package org.example.mailingSystem.controller;
+package org.example.mailingSystem.loginAPI.controller;
 
-import com.fasterxml.jackson.databind.util.JSONPObject;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import org.apache.tomcat.util.json.JSONParser;
 import org.example.mailingSystem.dto.MailDto;
-import org.example.mailingSystem.service.EmailService;
+import org.example.mailingSystem.loginAPI.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -29,7 +24,9 @@ public class MailController {
                                   @RequestParam(value = "page") int page,
                                   HttpServletResponse response) {
 
-        HttpSession session = request.getSession();
+        HttpSession session = request.getSession(true);
+
+//        String userId = (String) session.getAttribute("userId");
 
         Map<String, Object> result = this.emailService.getMailList(session,
                                                                     page);

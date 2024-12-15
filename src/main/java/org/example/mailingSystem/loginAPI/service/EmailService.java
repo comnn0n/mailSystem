@@ -1,16 +1,15 @@
-package org.example.mailingSystem.service;
+package org.example.mailingSystem.loginAPI.service;
 
 import ch.qos.logback.core.util.StringUtil;
 import jakarta.servlet.http.HttpSession;
 import org.example.mailingSystem.dto.MailDto;
-import org.example.mailingSystem.mapper.EmailMapper;
+import org.example.mailingSystem.loginAPI.mapper.EmailMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -68,7 +67,7 @@ public class EmailService {
     public Map<String, Object> getMailList(HttpSession session,
                                      int page) {
 
-        //        String senderId = session.getId();
+//        String senderId = session.getAttribute("userId").toString();
         String senderId = "melong4609@gmail.com";
 
         int pageNum = (page - 1) * 10;

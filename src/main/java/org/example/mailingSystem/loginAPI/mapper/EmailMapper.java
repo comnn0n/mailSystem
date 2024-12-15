@@ -1,4 +1,4 @@
-package org.example.mailingSystem.mapper;
+package org.example.mailingSystem.loginAPI.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;

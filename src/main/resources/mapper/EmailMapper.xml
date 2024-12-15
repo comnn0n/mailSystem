@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.example.mailingSystem.mapper.EmailMapper">
+<mapper namespace="org.example.mailingSystem.loginAPI.mapper.EmailMapper">
     <resultMap id="mailDtoResultMap" type="org.example.mailingSystem.dto.MailDto">
         <id column="mail_no" property="mailNo"></id>
         <result column="sender_email" property="senderEmail"></result>
