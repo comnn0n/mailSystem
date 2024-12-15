@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.mailingSystem.loginAPI.mapper.EmailMapper">
+    <resultMap id="mailDtoResultMap" type="org.example.mailingSystem.dto.MailDto">
+        <id column="mail_no" property="mailNo"></id>
+        <result column="sender_email" property="senderEmail"></result>
+        <result column="sender_name" property="senderName"></result>
+        <result column="receiver_email" property="receiverEmail"></result>
+        <result column="title" property="title"></result>
+        <result column="content" property="content"></result>
+        <result column="received_time" property="receivedTime"></result>
+        <result column="sent_time" property="sentTime"></result>
+        <result column="is_important" property="isImportant"></result>
+        <result column="is_read" property="isRead"></result>
+        <result column="is_bookmarked" property="isBookmarked"></result>
+    </resultMap>
+
+    <insert id="insertMail" parameterType="org.example.mailingSystem.dto.MailDto">
+        INSERT INTO MAILLIST
+            (sender_email,
+             sender_name,
+             receiver_email,
+             title,
+             content,
+             received_time,
+             sent_time,
+             is_important,
+             is_read,
+             is_bookmarked)
+        VALUES
+            (#{senderEmail},
+             #{senderName},
+             #{receiverEmail},
+             #{title},
+             #{content},
+             CURRENT_TIME,
+             CURRENT_TIME,
+             #{isImportant},
+             #{isRead},
+             #{isBookmarked})
+    </insert>
+
+    <select id="selectMailList" resultMap="mailDtoResultMap">
+        SELECT
+            mail_no,
+            sender_email,
+            sender_name,
+            receiver_email,
+            title,
+            content,
+            received_time,
+            sent_time,
+            is_important,
+            is_read,
+            is_bookmarked
+        FROM MAILLIST
+        WHERE sender_email = #{senderId}
+        ORDER BY mail_no DESC
+        LIMIT 10 OFFSET #{pageNum}
+    </select>
+
+    <select id="selectMailListCount" resultType="int">
+        SELECT
+            COUNT(mail_no)
+        FROM MAILLIST
+        WHERE sender_email = #{senderId}
+    </select>
+
+    <update id="updateEmail" parameterType="org.example.mailingSystem.dto.MailDto">
+        UPDATE MAILLIST
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="isImportant != null">
+                is_important = #{isImportant}
+            </if>
+            <if test="isRead != null">
+                is_read = #{isRead}
+            </if>
+            <if test="isBookmarked != null">
+                is_bookmarked = #{isBookmarked}
+            </if>
+        </trim>
+        where mail_no = #{mailNo}
+    </update>
+</mapper>

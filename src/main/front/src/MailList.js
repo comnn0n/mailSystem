@@ -1,7 +1,61 @@
 import axios from "axios";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import {forEach} from "react-bootstrap/ElementChildren";
+import { format } from 'date-fns';
 
 function MailList() {
+
+  const [mailList, setMailList] = useState([]);
+  const [mailCount, setMailCount] = useState([]);
+
+  const tbody = useRef();
+
+  const page = useParams();
+
+  const getMailList = function()  {
+
+    const param =  {
+      page: page ? page.page : 1
+    };
+
+    const formData = new URLSearchParams();
+
+    Object.keys(param).forEach(key => {
+      formData.append(key, param[key]);
+    });
+
+    axios.post("http://localhost:8080/api/mail/getEmail", formData).then(
+        response => {
+          setMailList(response.data.mailList);
+          setMailCount(response.data.count);
+        }
+    ).catch(
+        error => {
+          console.log(error);
+        }
+    )
+  };
+
+  useEffect(() => {
+    getMailList();
+  }, []);
+
+  function updateMailItem(params) {
+    axios.post("http://localhost:8080/api/mail/updEmail", params).then(
+        response => {
+          getMailList();
+        }
+    )
+  }
+
+  const bookmark = function(params) {
+    updateMailItem(params);
+  };
+
+  const important = function(params) {
+    updateMailItem(params);
+  };
 
   const [to, setTo] = useState('');
   const [cc, setCc] = useState('');
@@ -18,15 +72,19 @@ function MailList() {
   function saveTo() {
     setTo(toInput.current.value);
   }
+
   function saveCc() {
     setCc(ccInput.current.value);
   }
+
   function saveBcc() {
     setBcc(bccInput.current.value);
   }
+
   function saveSubject() {
     setSubject(subjectInput.current.value);
   }
+
   function saveMessage() {
     setMessage(messageInput.current.value);
   }
@@ -40,23 +98,23 @@ function MailList() {
     const data = {
       'senderEmail': 'melong4609@gmail.com',
       'senderName': '테스트',
-      "receivedEmail": to,
+      "receiverEmail": to,
       'title': subject,
       'content': message
     }
 
-    // if(!to) {
-    //   alert('받으실 분의 메일주소를 입력해주세요.');
-    //   return;
-    // }
-    // if(!to.includes('@')) {
-    //   alert('받으실 분의 메일주소를 정확히 입력해주세요.');
-    //   return;
-    // }
-    // if(!message) {
-    //   alert('내용을 입력해주세요.');
-    //   return;
-    // }
+    if(!to) {
+      alert('받으실 분의 메일주소를 입력해주세요.');
+      return;
+    }
+    if(!to.includes('@')) {
+      alert('받으실 분의 메일주소를 정확히 입력해주세요.');
+      return;
+    }
+    if(!message) {
+      alert('내용을 입력해주세요.');
+      return;
+    }
 
     axios.post("http://localhost:8080/api/mail/sendEmail", data).then(
         response => {
@@ -71,90 +129,126 @@ function MailList() {
     );
   }
 
+  // 모달 세팅
+  const [modalOption, setModalOption] = useState();
+  const [mailItem, setMailItem] = useState({});
+  function read(params) {
+    setModalOption("read");
+    updateMailItem(params);
+  }
+  function write() {
+    setModalOption("write");
+  }
+
+  const pageCount = Math.ceil(mailCount/10);
+
+  const navi = useNavigate();
+  const toForward = () => {
+    if(page.page > 1) {
+      navi(`/${Number(page.page) - 1}`);
+    }
+    getMailList();
+  }
+  const toBackward = () => {
+    if(page.page < pageCount) {
+      navi(`/${Number(page.page) + 1}`);
+    }
+    getMailList();
+  }
+
+  function formattedDate(rawDate) {
+    if(rawDate != null && rawDate != '') {
+      const date = new Date(rawDate);
+      const formattedDate = format(date, 'yyyy-MM-dd HH:mm:ss');
+      return formattedDate;
+    }
+  }
+
   return (
     <div className="App">
-      <div class="container">
-        <div class="row">
-          <div class="col-md-12">
-            <div class="grid email">
-              <div class="grid-body">
-                <div class="row">
-                  <div class="col-md-3">
-                    <h2 class="grid-title">
-                      <i class="fa fa-inbox"></i> Inbox
+      <div className="container">
+        <div className="row">
+          <div className="col-md-12">
+            <div className="grid email">
+              <div className="grid-body">
+                <div className="row">
+                  <div className="col-md-3">
+                    <h2 className="grid-title">
+                      <i className="fa fa-inbox"></i> Inbox
                     </h2>
                     <a
-                      class="btn btn-block btn-primary"
-                      data-toggle="modal"
-                      data-target="#compose-modal"
+                        className="btn btn-block btn-primary"
+                        data-toggle="modal"
+                        data-target="#compose-modal"
+                        onClick={write}
                     >
-                      <i class="fa fa-pencil"></i>&nbsp;&nbsp;NEW MESSAGE
+                      <i className="fa fa-pencil"></i>&nbsp;&nbsp;NEW MESSAGE
                     </a>
 
-                    <hr />
+                    <hr/>
 
                     <div>
-                      <ul class="nav nav-pills nav-stacked">
-                        <li class="header">Folders</li>
-                        <li class="active">
+                      <ul className="nav nav-pills nav-stacked">
+                        <li className="header">Folders</li>
+                        <li className="active">
                           <a href="#">
-                            <i class="fa fa-inbox"></i> Inbox (14)
+                            <i className="fa fa-inbox"></i> Inbox (14)
                           </a>
                         </li>
                         <li>
                           <a href="#">
-                            <i class="fa fa-star"></i> Starred
+                            <i className="fa fa-star"></i> Starred
                           </a>
                         </li>
                         <li>
                           <a href="#">
-                            <i class="fa fa-bookmark"></i> Important
+                            <i className="fa fa-bookmark"></i> Important
                           </a>
                         </li>
                         <li>
                           <a href="#">
-                            <i class="fa fa-mail-forward"></i> Sent
+                            <i className="fa fa-mail-forward"></i> Sent
                           </a>
                         </li>
                         <li>
                           <a href="#">
-                            <i class="fa fa-pencil-square-o"></i> Drafts
+                            <i className="fa fa-pencil-square-o"></i> Drafts
                           </a>
                         </li>
                         <li>
                           <a href="#">
-                            <i class="fa fa-folder"></i> Spam (217)
+                            <i className="fa fa-folder"></i> Spam (217)
                           </a>
                         </li>
                       </ul>
                     </div>
                   </div>
 
-                  <div class="col-md-9">
-                    <div class="row">
-                      <div class="col-sm-6">
-                        <label style={{ marginRight: "8px" }} class="">
+                  <div className="col-md-9">
+                    <div className="row">
+                      <div className="col-sm-6">
+                        <label style={{marginRight: "8px"}} className="">
                           <div
-                            class="icheckbox_square-blue"
-                            style={{ position: "relative" }}
+                              className="icheckbox_square-blue"
+                              style={{position: "relative"}}
                           >
                             <input
-                              type="checkbox"
-                              id="check-all"
-                              class="icheck"
+                                type="checkbox"
+                                id="check-all"
+                                className="icheck"
                             />
-                            <ins class="iCheck-helper"></ins>
+                            <ins className="iCheck-helper"></ins>
                           </div>
                         </label>
-                        <div class="btn-group">
+                        <div className="btn-group">
                           <button
-                            type="button"
-                            class="btn btn-default dropdown-toggle"
-                            data-toggle="dropdown"
+                              type="button"
+                              className="btn btn-default dropdown-toggle"
+                              data-toggle="dropdown"
                           >
-                            Action <span class="caret"></span>
+                            Action <span className="caret"></span>
                           </button>
-                          <ul class="dropdown-menu" role="menu">
+                          <ul className="dropdown-menu" role="menu">
                             <li>
                               <a href="#">Mark as read</a>
                             </li>
@@ -164,7 +258,7 @@ function MailList() {
                             <li>
                               <a href="#">Mark as important</a>
                             </li>
-                            <li class="divider"></li>
+                            <li className="divider"></li>
                             <li>
                               <a href="#">Report spam</a>
                             </li>
@@ -175,21 +269,21 @@ function MailList() {
                         </div>
                       </div>
 
-                      <div class="col-md-6 search-form">
-                        <form action="#" class="text-right">
-                          <div class="input-group">
+                      <div className="col-md-6 search-form">
+                        <form action="#" className="text-right">
+                          <div className="input-group">
                             <input
-                              type="text"
-                              class="form-control input-sm"
-                              placeholder="Search"
+                                type="text"
+                                className="form-control input-sm"
+                                placeholder="Search"
                             />
-                            <span class="input-group-btn">
+                            <span className="input-group-btn">
                               <button
-                                type="submit"
-                                name="search"
-                                class="btn_ btn-primary btn-sm search"
+                                  type="submit"
+                                  name="search"
+                                  className="btn_ btn-primary btn-sm search"
                               >
-                                <i class="fa fa-search"></i>
+                                <i className="fa fa-search"></i>
                               </button>
                             </span>
                           </div>
@@ -197,349 +291,256 @@ function MailList() {
                       </div>
                     </div>
 
-                    <div class="padding"></div>
+                    <div className="padding"></div>
 
-                    <div class="table-responsive">
-                      <table class="table">
-                        <tbody>
-                          <tr>
-                            <td class="action">
-                              <input type="checkbox" />
-                            </td>
-                            <td class="action">
-                              <i class="fa fa-star-o"></i>
-                            </td>
-                            <td class="action">
-                              <i class="fa fa-bookmark-o"></i>
-                            </td>
-                            <td class="name">
-                              <a href="#">Larry Gardner</a>
-                            </td>
-                            <td class="subject">
-                              <a href="#">
-                                Lorem ipsum dolor sit amet, consectetur
-                                adipisicing elit, sed{" "}
-                              </a>
-                            </td>
-                            <td class="time">08:30 PM</td>
-                          </tr>
-                          <tr>
-                            <td class="action">
-                              <input type="checkbox" />
-                            </td>
-                            <td class="action">
-                              <i class="fa fa-star-o"></i>
-                            </td>
-                            <td class="action">
-                              <i class="fa fa-bookmark"></i>
-                            </td>
-                            <td class="name">
-                              <a href="#">Larry Gardner</a>
-                            </td>
-                            <td class="subject">
-                              <a href="#">
-                                Lorem ipsum dolor sit amet, consectetur
-                                adipisicing elit, sed{" "}
-                              </a>
-                            </td>
-                            <td class="time">08:30 PM</td>
-                          </tr>
-                          <tr class="read">
-                            <td class="action">
-                              <input type="checkbox" />
-                            </td>
-                            <td class="action">
-                              <i class="fa fa-star"></i>
-                            </td>
-                            <td class="action">
-                              <i class="fa fa-bookmark"></i>
-                            </td>
-                            <td class="name">
-                              <a href="#">Larry Gardner</a>
-                            </td>
-                            <td class="subject">
-                              <a href="#">
-                                Lorem ipsum dolor sit amet, consectetur
-                                adipisicing elit, sed{" "}
-                              </a>
-                            </td>
-                            <td class="time">08:30 PM</td>
-                          </tr>
-                          <tr>
-                            <td class="action">
-                              <input type="checkbox" />
-                            </td>
-                            <td class="action">
-                              <i class="fa fa-star-o"></i>
-                            </td>
-                            <td class="action">
-                              <i class="fa fa-bookmark-o"></i>
-                            </td>
-                            <td class="name">
-                              <a href="#">Larry Gardner</a>
-                            </td>
-                            <td class="subject">
-                              <a href="#">
-                                Lorem ipsum dolor sit amet, consectetur
-                                adipisicing elit, sed{" "}
-                              </a>
-                            </td>
-                            <td class="time">08:30 PM</td>
-                          </tr>
-                          <tr class="read">
-                            <td class="action">
-                              <input type="checkbox" />
-                            </td>
-                            <td class="action">
-                              <i class="fa fa-star-o"></i>
-                            </td>
-                            <td class="action">
-                              <i class="fa fa-bookmark-o"></i>
-                            </td>
-                            <td class="name">
-                              <a href="#">Larry Gardner</a>
-                            </td>
-                            <td class="subject">
-                              <a href="#">
-                                Lorem ipsum dolor sit amet, consectetur
-                                adipisicing elit, sed{" "}
-                              </a>
-                            </td>
-                            <td class="time">08:30 PM</td>
-                          </tr>
-                          <tr class="read">
-                            <td class="action">
-                              <input type="checkbox" />
-                            </td>
-                            <td class="action">
-                              <i class="fa fa-star-o"></i>
-                            </td>
-                            <td class="action">
-                              <i class="fa fa-bookmark"></i>
-                            </td>
-                            <td class="name">
-                              <a href="#">Larry Gardner</a>
-                            </td>
-                            <td class="subject">
-                              <a href="#">
-                                Lorem ipsum dolor sit amet, consectetur
-                                adipisicing elit, sed{" "}
-                              </a>
-                            </td>
-                            <td class="time">08:30 PM</td>
-                          </tr>
-                          <tr>
-                            <td class="action">
-                              <input type="checkbox" />
-                            </td>
-                            <td class="action">
-                              <i class="fa fa-star"></i>
-                            </td>
-                            <td class="action">
-                              <i class="fa fa-bookmark-o"></i>
-                            </td>
-                            <td class="name">
-                              <a href="#">Larry Gardner</a>
-                            </td>
-                            <td class="subject">
-                              <a href="#">
-                                Lorem ipsum dolor sit amet, consectetur
-                                adipisicing elit, sed{" "}
-                              </a>
-                            </td>
-                            <td class="time">08:30 PM</td>
-                          </tr>
-                          <tr>
-                            <td class="action">
-                              <input type="checkbox" />
-                            </td>
-                            <td class="action">
-                              <i class="fa fa-star-o"></i>
-                            </td>
-                            <td class="action">
-                              <i class="fa fa-bookmark-o"></i>
-                            </td>
-                            <td class="name">
-                              <a href="#">Larry Gardner</a>
-                            </td>
-                            <td class="subject">
-                              <a href="#">
-                                Lorem ipsum dolor sit amet, consectetur
-                                adipisicing elit, sed{" "}
-                              </a>
-                            </td>
-                            <td class="time">08:30 PM</td>
-                          </tr>
-                          <tr class="read">
-                            <td class="action">
-                              <input type="checkbox" />
-                            </td>
-                            <td class="action">
-                              <i class="fa fa-star"></i>
-                            </td>
-                            <td class="action">
-                              <i class="fa fa-bookmark"></i>
-                            </td>
-                            <td class="name">
-                              <a href="#">Larry Gardner</a>
-                            </td>
-                            <td class="subject">
-                              <a href="#">
-                                Lorem ipsum dolor sit amet, consectetur
-                                adipisicing elit, sed{" "}
-                              </a>
-                            </td>
-                            <td class="time">08:30 PM</td>
-                          </tr>
-                          <tr>
-                            <td class="action">
-                              <input type="checkbox" />
-                            </td>
-                            <td class="action">
-                              <i class="fa fa-star"></i>
-                            </td>
-                            <td class="action">
-                              <i class="fa fa-bookmark-o"></i>
-                            </td>
-                            <td class="name">
-                              <a href="#">Larry Gardner</a>
-                            </td>
-                            <td class="subject">
-                              <a href="#">
-                                Lorem ipsum dolor sit amet, consectetur
-                                adipisicing elit, sed{" "}
-                              </a>
-                            </td>
-                            <td class="time">08:30 PM</td>
-                          </tr>
+                    <div className="table-responsive">
+                      <table className="table">
+                        <tbody ref={tbody}>
+                        {/*{setMailItemList()}*/}
+                        {mailList.map((v, i) => (
+                            <tr key={v.mailNo} id={v.mailNo} ref={(el) => {
+                              // mailItem.current = el
+                            }}>
+                              <td className="action">
+                                <input type="checkbox"/>
+                              </td>
+                              <td className="action important" onClick={(e) => {
+
+                                const params = {
+                                  mailNo: v.mailNo,
+                                }
+
+                                if (e.currentTarget.children[0].className.includes('-o')) {
+                                  params['isImportant'] = true;
+                                } else {
+                                  params['isImportant'] = false;
+                                }
+
+                                const formData = new URLSearchParams();
+                                Object.keys(params).forEach(key => {
+                                  formData.append(key, params[key]);
+                                })
+
+                                important(formData)
+                              }}>
+                                {v.isImportant ? <i className="fa fa-star"></i> : <i className="fa fa-star-o"></i>}
+                              </td>
+                              <td className="action bookmark" onClick={(e) => {
+                                const params = {
+                                  mailNo: v.mailNo,
+                                }
+
+                                if (e.currentTarget.children[0].className.includes('-o')) {
+                                  params['isBookmarked'] = true;
+                                } else {
+                                  params['isBookmarked'] = false;
+                                }
+
+                                const formData = new URLSearchParams();
+                                Object.keys(params).forEach(key => {
+                                  formData.append(key, params[key]);
+                                })
+
+                                bookmark(formData)
+                              }}>
+                                {v.isBookmarked ? <i className="fa fa-bookmark"></i> :
+                                    <i className="fa fa-bookmark-o"></i>}
+                              </td>
+                              <td className="name">
+                                <a href="#">{v.senderEmail}</a>
+                              </td>
+                              <td
+                                  className={v.isRead ? "subject read" : "subject"}
+                              >
+                                <p
+                                    style={{"cursor": "pointer"}}
+                                    onClick={() => {
+                                      const params = {
+                                        mailNo: v.mailNo,
+                                        isRead: true
+                                      };
+                                      const formData = new URLSearchParams();
+                                      Object.keys(params).forEach(key => {
+                                        formData.append(key, params[key]);
+                                      });
+
+                                      read(formData);
+
+                                      setMailItem(v)
+                                    }}
+                                    data-toggle="modal"
+                                    data-target="#compose-modal"
+                                >
+                                  {v.content}
+                                </p>
+                              </td>
+                              <td className="time">{v.receivedTime.substring(0, 10)}</td>
+                            </tr>
+                        ))}
                         </tbody>
                       </table>
                     </div>
 
-                    <ul class="pagination">
-                      <li class="disabled">
-                        <a href="#">«</a>
-                      </li>
-                      <li class="active">
-                        <a href="#">1</a>
-                      </li>
+                    <ul className="pagination">
                       <li>
-                        <a href="#">2</a>
+                        <a href="" onClick={toForward}>«</a>
                       </li>
+                      {
+                        Array.from({ length: pageCount }).map((_, index) => (
+                          <li className={page.page == index+1 ? "active" : ""} key={index+1} onClick={getMailList}>
+                            <a href={index+1}>{index+1}</a>
+                          </li>
+                        ))
+                      }
+
+                      {/*<li className="active">*/}
+                      {/*<a href="#">1</a>*/}
+                      {/*</li>*/}
+                      {/*<li className="disabled">*/}
+                      {/*  <a href="#">2</a>*/}
+                      {/*</li>*/}
+                      {/*<li>*/}
+                      {/*  <a href="#">3</a>*/}
+                      {/*</li>*/}
+                      {/*<li>*/}
+                      {/*  <a href="#">4</a>*/}
+                      {/*</li>*/}
+                      {/*<li>*/}
+                      {/*  <a href="#">5</a>*/}
+                      {/*</li>*/}
                       <li>
-                        <a href="#">3</a>
-                      </li>
-                      <li>
-                        <a href="#">4</a>
-                      </li>
-                      <li>
-                        <a href="#">5</a>
-                      </li>
-                      <li>
-                        <a href="#">»</a>
+                        <a href="" onClick={toBackward}>»</a>
                       </li>
                     </ul>
                   </div>
 
+                  {/* 메일 작성 모달 */}
                   <div
-                    class="modal fade"
-                    id="compose-modal"
-                    tabindex="-1"
-                    role="dialog"
-                    aria-hidden="true"
+                      className="modal fade"
+                      id="compose-modal"
+                      tabIndex="-1"
+                      role="dialog"
+                      // aria-hidden="true"
                   >
-                    <div class="modal-wrapper">
-                      <div class="modal-dialog">
-                        <div class="modal-content">
-                          <div class="modal-header bg-blue">
+                    <div className="modal-wrapper">
+                      <div className="modal-dialog">
+                        <div className="modal-content">
+                          <div className="modal-header bg-blue">
                             <button
-                              type="button"
-                              class="close"
-                              data-dismiss="modal"
-                              aria-hidden="true"
-                              ref={closeBtn}
+                                type="button"
+                                className="close"
+                                data-dismiss="modal"
+                                // aria-hidden="true"
+                                ref={closeBtn}
                             >
                               ×
                             </button>
-                            <h4 class="modal-title">
-                              <i class="fa fa-envelope"></i> Compose New Message
+                            <h4 className="modal-title">
+                              <i className="fa fa-envelope"></i> {modalOption == "write" ? ("Compose New Message") : ("Read Message")}
                             </h4>
                           </div>
-                          <form action="#" method="post">
-                            <div class="modal-body">
-                              <div class="form-group">
-                                <input
-                                  name="to"
-                                  type="email"
-                                  class="form-control"
-                                  placeholder="To"
-                                  ref={toInput}
-                                  onChange={saveTo}
-                                />
-                              </div>
-                              <div class="form-group">
-                                <input
-                                  name="cc"
-                                  type="email"
-                                  class="form-control"
-                                  placeholder="Cc"
-                                  ref={ccInput}
-                                  onChange={saveCc}
-                                />
-                              </div>
-                              <div class="form-group">
-                                <input
-                                  name="bcc"
-                                  type="email"
-                                  class="form-control"
-                                  placeholder="Bcc"
-                                  ref={bccInput}
-                                  onChange={saveBcc}
-                                />
-                              </div>
-                              <div class="form-group">
-                                <input
-                                  name="subject"
-                                  type="email"
-                                  class="form-control"
-                                  placeholder="Subject"
-                                  ref={subjectInput}
-                                  onChange={saveSubject}
-                                />
-                              </div>
-                              <div class="form-group">
-                                <textarea
-                                  name="message"
-                                  id="email_message"
-                                  class="form-control"
-                                  placeholder="Message"
-                                  ref={messageInput}
-                                  onChange={saveMessage}
-                                  style={{ height: "120px" }}
-                                ></textarea>
-                              </div>
-                              <div class="form-group">
-                                {" "}
-                                <input type="file" name="attachment" />
-                              </div>
-                            </div>
-                            <div class="modal-footer">
-                              <button
-                                type="button"
-                                class="btn btn-default"
-                                data-dismiss="modal"
-                              >
-                                <i class="fa fa-times"></i> Discard
-                              </button>
-                              <button
-                                // type="submit"
-                                onClick={sendEmail}
-                                class="btn btn-primary pull-right"
-                              >
-                                <i class="fa fa-envelope"></i> Send Message
-                              </button>
-                            </div>
-                          </form>
+                          {
+                            modalOption == "write" ?
+                                (<form action="#" method="post">
+                                    <div className="modal-body">
+                                      <div className="form-group">
+                                        <input
+                                            name="to"
+                                            type="email"
+                                            className="form-control"
+                                            placeholder="To"
+                                            ref={toInput}
+                                            onChange={saveTo}
+                                        />
+                                      </div>
+                                      <div className="form-group">
+                                        <input
+                                            name="cc"
+                                            type="email"
+                                            className="form-control"
+                                            placeholder="Cc"
+                                            ref={ccInput}
+                                            onChange={saveCc}
+                                        />
+                                      </div>
+                                      <div className="form-group">
+                                        <input
+                                            name="bcc"
+                                            type="email"
+                                            className="form-control"
+                                            placeholder="Bcc"
+                                            ref={bccInput}
+                                            onChange={saveBcc}
+                                        />
+                                      </div>
+                                      <div className="form-group">
+                                        <input
+                                            name="subject"
+                                            type="email"
+                                            className="form-control"
+                                            placeholder="Subject"
+                                            ref={subjectInput}
+                                            onChange={saveSubject}
+                                        />
+                                      </div>
+                                      <div className="form-group">
+                                        <textarea
+                                            name="message"
+                                            id="email_message"
+                                            className="form-control"
+                                            placeholder="Message"
+                                            ref={messageInput}
+                                            onChange={saveMessage}
+                                            style={{height: "120px"}}
+                                        ></textarea>
+                                      </div>
+                                      <div className="form-group">
+                                        {" "}
+                                        <input type="file" name="attachment"/>
+                                      </div>
+                                    </div>
+                                    <div className="modal-footer">
+                                      <button
+                                          type="button"
+                                          className="btn btn-default"
+                                          data-dismiss="modal"
+                                      >
+                                        <i className="fa fa-times"></i> Discard
+                                      </button>
+                                      <button
+                                          // type="submit"
+                                          onClick={sendEmail}
+                                          className="btn btn-primary pull-right"
+                                      >
+                                        <i className="fa fa-envelope"></i> Send Message
+                                      </button>
+                                    </div>
+                                  </form>)
+                                :
+                            (
+                                <div className="read_mail_modal">
+                                  <table>
+                                    <tr>
+                                      <td className="modal_subject">보낸 사람</td>
+                                      <td>{mailItem.senderEmail} ({mailItem.senderName})</td>
+                                    </tr>
+                                    <tr>
+                                      <td className="modal_subject">받은 시각</td>
+                                      <td>{formattedDate(mailItem.receivedTime)}</td>
+                                    </tr>
+                                    <tr className="modal_mail_title">
+                                      <td className="modal_content_title">제목</td>
+                                      <td>{mailItem.title}</td>
+                                    </tr>
+                                    <tr className="modal_mail_content">
+                                      <td colSpan={2}>
+                                        <div>{mailItem.content}</div>
+                                      </td>
+                                    </tr>
+                                  </table>
+                                </div>
+                            )
+                          }
                         </div>
                       </div>
                     </div>

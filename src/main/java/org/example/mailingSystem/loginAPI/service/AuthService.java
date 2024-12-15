@@ -1,5 +1,6 @@
 package org.example.mailingSystem.LoginAPI.service;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.example.mailingSystem.LoginAPI.domain.entity.User;
 import org.example.mailingSystem.LoginAPI.domain.repository.UserRepository;
 import org.example.mailingSystem.LoginAPI.mapper.MemberMapper;
@@ -35,7 +36,7 @@ public class AuthService {
         return false;
     }
 
-    public String login(String email, String rawPassword) {
+    public String login(String email, String rawPassword, HttpServletRequest request) {
         Optional<User> optionalUser = userRepository.findByEmail(email);
 
         // Optional<User>에서 값이 없으면 예외 처리
