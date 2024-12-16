@@ -4,7 +4,8 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@MapperScan(basePackages = "org.example.mailingSystem.LoginAPI.mapper")
+//@MapperScan(basePackages = "org.example.mailingSystem.LoginAPI.mapper")
+@MapperScan(basePackages = "org.example.mailingSystem.mapper")
 @SpringBootApplication
 public class MailingSystemApplication {
     public static void main(String[] args) {

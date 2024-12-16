@@ -37,6 +37,7 @@ public class UserController {
         String token = authService.login(loginRequest.getEmail(), loginRequest.getPassword());
         Map<String, String> response = new HashMap<>();
         response.put("token", token);
+        response.put("email", loginRequest.getEmail());
         response.put("message", "Login successful!");
         return ResponseEntity.ok(response);
     }
